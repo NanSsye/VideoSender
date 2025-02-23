@@ -34,7 +34,7 @@ ffmpeg_path = "/usr/bin/ffmpeg"  # ffmpeg 路径，根据实际情况修改
 video_sources = [
     { name = "视频源1", url = "https://example.com/video1.mp4" },
     { name = "视频源2", url = "https://example.com/video2.mp4" },
-    # 可以添加更多视频源
+    可以添加更多视频源
 ]
 enable：是否启用该插件，true 为启用，false 为禁用。
 commands：触发插件功能的命令列表，用户输入这些命令时，插件会做出相应处理。
