@@ -1,45 +1,45 @@
 # VideoSender
-随机播放小姐姐视频
+    随机播放小姐姐视频
 **一、插件概述**
-VideoSender 是一个功能强大的插件，它能够从多个视频源中随机获取视频，将视频数据以 Base64 编码的形式发送给用户。同时，若系统中安装了 ffmpeg，插件还支持从视频中提取缩略图，并在发送视频时附带缩略图，提升用户体验。
+    VideoSender 是一个功能强大的插件，它能够从多个视频源中随机获取视频，将视频数据以 Base64 编码的形式发送给用户。同时，若系统中安装了 ffmpeg，插件还支持从视频中提取缩略图，并在发送视频时附带缩略图，提升用户体验。
 **二、功能特性**
-多视频源支持：可以配置多个视频源，支持随机选择视频源或指定特定视频源获取视频。
-缩略图提取：利用 ffmpeg 从视频中提取缩略图，在发送视频时一并提供，增强展示效果。
-异步操作：采用异步编程模型，使用 asyncio 和 aiohttp 进行异步 HTTP 请求和文件下载，提高性能和响应速度。
-错误处理：具备完善的错误处理机制，在获取视频、下载视频、提取缩略图等过程中出现异常时，能给用户明确的错误提示。
+    多视频源支持：可以配置多个视频源，支持随机选择视频源或指定特定视频源获取视频。
+    缩略图提取：利用 ffmpeg 从视频中提取缩略图，在发送视频时一并提供，增强展示效果。
+    异步操作：采用异步编程模型，使用 asyncio 和 aiohttp 进行异步 HTTP 请求和文件下载，提高性能和响应速度。
+    错误处理：具备完善的错误处理机制，在获取视频、下载视频、提取缩略图等过程中出现异常时，能给用户明确的错误提示。
 **三、安装与配置**
-1. 安装依赖
-确保你的 Python 环境中已经安装了以下依赖库：
-bash
-pip install aiohttp loguru filetype
-同时，需要安装 ffmpeg 以支持缩略图提取功能。不同操作系统的安装方法如下：
-Ubuntu/Debian
-bash
-sudo apt-get install ffmpeg
-CentOS/RHEL
-bash
-sudo yum install ffmpeg
-macOS（使用 Homebrew）
-bash
-brew install ffmpeg
-2. 配置文件
-在 plugins/VideoSender 目录下创建 config.toml 文件，并进行如下配置：
-toml
-[
-VideoSender
-]
-enable = true
-commands = ["发送视频", "来个视频", "随机视频", "视频目录"]
-ffmpeg_path = "/usr/bin/ffmpeg"  # ffmpeg 路径，根据实际情况修改
-video_sources = [
+    1. 安装依赖
+    确保你的 Python 环境中已经安装了以下依赖库：
+    bash
+    pip install aiohttp loguru filetype
+    同时，需要安装 ffmpeg 以支持缩略图提取功能。不同操作系统的安装方法如下：
+    Ubuntu/Debian
+    bash
+    sudo apt-get install ffmpeg
+    CentOS/RHEL
+    bash
+    sudo yum install ffmpeg
+    macOS（使用 Homebrew）
+    bash
+    brew install ffmpeg
+    2. 配置文件
+    在 plugins/VideoSender 目录下创建 config.toml 文件，并进行如下配置：
+    toml
+    [
+    VideoSender
+    ]
+    enable = true
+    commands = ["发送视频", "来个视频", "随机视频", "视频目录"]
+    ffmpeg_path = "/usr/bin/ffmpeg"  # ffmpeg 路径，根据实际情况修改
+    video_sources = [
     { name = "视频源1", url = "https://example.com/video1.mp4" },
     { name = "视频源2", url = "https://example.com/video2.mp4" },
     可以添加更多视频源
-]
-enable：是否启用该插件，true 为启用，false 为禁用。
-commands：触发插件功能的命令列表，用户输入这些命令时，插件会做出相应处理。
-ffmpeg_path：ffmpeg 的安装路径，确保路径正确，以便插件能正常调用 ffmpeg 进行缩略图提取。
-video_sources：视频源列表，每个视频源包含 name（视频源名称）和 url（视频源的 URL）。
+    ]
+    enable：是否启用该插件，true 为启用，false 为禁用。
+    commands：触发插件功能的命令列表，用户输入这些命令时，插件会做出相应处理。
+    ffmpeg_path：ffmpeg 的安装路径，确保路径正确，以便插件能正常调用 ffmpeg 进行缩略图提取。
+    video_sources：视频源列表，每个视频源包含 name（视频源名称）和 url（视频源的 URL）。
 **四、使用方法**
 1. 发送随机视频
 用户输入 随机视频 命令，插件会随机选择一个视频源，获取视频链接，下载视频数据，并尝试提取缩略图，最后将视频和缩略图（如果提取成功）发送给用户。例如：
