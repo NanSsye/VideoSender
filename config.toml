@@ -1,32 +1,25 @@
 [VideoSender]
 enable = true
-commands = ["随机视频", "黑丝", "燕酱", "少萝", "女大", "吊带视频", "琳铛", "惠子","视频目录"]
+commands = ["随机视频", "视频目录"]
 ffmpeg_path = "/usr/bin/ffmpeg"
 
 [[VideoSender.video_sources]]
-name = "燕酱系列"
-url = "https://api.317ak.com/API/sp/yjxl.php"
+name = "视频"
+url = "https://api.317ak.com/API/sp/lbll.php"
 
 [[VideoSender.video_sources]]
-name = "少萝系列"
-url = "https://api.317ak.com/API/sp/slxl.php"
+name = "视频2"
+url = "http://api.yujn.cn/api/zzxjj.php"
 
 [[VideoSender.video_sources]]
-name = "女大系列"
-url = "https://api.317ak.com/API/sp/ndxl.php"
+name = "视频3"
+url = "http://api.yujn.cn/api/xjj.php"
 
 [[VideoSender.video_sources]]
-name = "吊带视频"
-url = "https://api.317ak.com/API/sp/ddsp.php"
+name = "视频4"
+url = " http://api.yujn.cn/api/heisis.php"
 
 [[VideoSender.video_sources]]
-name = "琳铛系列"
-url = "https://api.317ak.com/API/sp/ldxl.php"
+name = "视频5"
+url = " http://api.yujn.cn/api/baisis.php"
 
-[[VideoSender.video_sources]]
-name = "惠子系列"
-url = "https://api.317ak.com/API/sp/hzxl.php"
-
-[[VideoSender.video_sources]]
-name = "黑丝系列"
-url = "https://api.317ak.com/API/sp/hssp.php"
