@@ -9,6 +9,7 @@ import aiohttp
 import filetype
 from loguru import logger
 import random
+import binascii
 
 from WechatAPI import WechatAPIClient
 from database.XYBotDB import XYBotDB
@@ -27,7 +28,7 @@ class VideoSender(PluginBase):
     """
 
     description = "点击链接获取视频并发送给用户的插件，支持多个视频源"
-    author = "AI编程猫"
+    author = "老夏的金库"
     version = "1.1.0"
 
     def __init__(self):
@@ -89,27 +90,32 @@ class VideoSender(PluginBase):
             return ""
 
         if source_name:
-            # 查找指定名称的视频源
             for source in self.video_sources:
                 if source["name"] == source_name:
-                    url = source["url"]
+                    url = f"{source['url']}?type=json"  # 确保请求类型为 JSON
                     logger.debug(f"使用视频源: {source['name']}")
                     break
             else:
                 logger.warning(f"未找到名为 {source_name} 的视频源，随机选择一个视频源")
-                url = random.choice(self.video_sources)["url"]
+                url = f"{random.choice(self.video_sources)['url']}?type=json"
                 logger.debug(f"随机使用视频源: {url}")
         else:
-            # 随机选择一个视频源
             source = random.choice(self.video_sources)
-            url = source["url"]
+            url = f"{source['url']}?type=json"
             logger.debug(f"随机使用视频源: {source['name']}")
 
         try:
-            async with aiohttp.ClientSession(timeout=aiohttp.ClientTimeout(total=10)) as session:  # 添加超时
-                async with session.get(url) as response:
+            async with aiohttp.ClientSession(timeout=aiohttp.ClientTimeout(total=10)) as session:
+                headers = {
+                    'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/58.0.3029.110 Safari/537.3'
+                }
+                async with session.get(url, headers=headers) as response:
+                    logger.debug(f"尝试获取视频源: {url}")
                     if response.status == 200:
-                        return str(response.url)  # 返回最终的 URL
+                        json_response = await response.json()  # 解析 JSON 响应
+                        video_url = json_response.get("data")  # 提取视频 URL
+                        logger.info(f"获取到视频链接: {video_url}")
+                        return video_url
                     else:
                         logger.error(f"获取视频失败，状态码: {response.status}")
                         return ""
@@ -120,10 +126,12 @@ class VideoSender(PluginBase):
     async def _download_video(self, video_url: str) -> bytes:
         """下载视频文件"""
         try:
-            async with aiohttp.ClientSession(timeout=aiohttp.ClientTimeout(total=30)) as session:  # 添加超时
+            async with aiohttp.ClientSession(timeout=aiohttp.ClientTimeout(total=30)) as session:
                 async with session.get(video_url) as response:
                     if response.status == 200:
-                        return await response.read()
+                        video_data = await response.read()
+                        logger.debug(f"下载的视频数据大小: {len(video_data)} bytes")
+                        return video_data
                     else:
                         logger.error(f"下载视频失败，状态码: {response.status}")
                         return b""  # 返回空字节
@@ -178,7 +186,7 @@ class VideoSender(PluginBase):
     async def handle_text_message(self, bot: WechatAPIClient, message: dict):
         """处理文本消息，判断是否需要触发发送视频。"""
         if not self.enable:
-            return
+            return True  # 插件未启用，继续执行后续处理
 
         content = message["Content"].strip()
         chat_id = message["FromWxid"]
@@ -190,7 +198,7 @@ class VideoSender(PluginBase):
                 elif command == "视频目录":
                     source_list = "\n".join([source["name"] for source in self.video_sources])
                     await bot.send_text_message(chat_id, f"可用的视频系列：\n{source_list}")
-                    return
+                    return False  # 返回 False，阻止后续执行
                 else:
                     source_name = command  # 命令就是视频源名称
 
@@ -216,6 +224,8 @@ class VideoSender(PluginBase):
 
                             try:
                                 video_base64 = base64.b64encode(video_data).decode("utf-8")
+                                logger.debug(f"视频 Base64 长度: {len(video_base64) if video_base64 else '无效'}")
+                                logger.debug(f"图片 Base64 长度: {len(image_base64) if image_base64 else '无效'}")
 
                                 # 发送视频消息
                                 await bot.send_video_message(chat_id, video=video_base64, image=image_base64 or "None")
@@ -240,7 +250,9 @@ class VideoSender(PluginBase):
                 except Exception as e:
                     logger.exception(f"处理视频过程中发生异常: {e}")
                     await bot.send_text_message(chat_id, f"处理视频过程中发生异常，请稍后重试: {e}")
-                return # 找到匹配的命令后，结束循环
+                return False  # 找到匹配的命令后，结束循环并阻止后续执行
+
+        return True  # 如果没有匹配的命令，继续执行后续处理
 
     async def close(self):
         """插件关闭时执行的操作。"""
